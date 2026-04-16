@@ -973,16 +973,15 @@ function App(){
 
   // ALL hooks must be before any conditional return
   useEffect(()=>{const t=setTimeout(()=>setSplash(false),1800);return()=>clearTimeout(t)},[]);
-  useEffect(()=>{(async()=>{
-    const s=await load();
+  useEffect(()=>{const s=load();
     if(s&&s.length){setWines(s)}
     else{const seed=decodeCollection();if(seed.length){setWines(seed);save(seed)}}
     // Load API key
-    try{const k=await window.storage.get("vintel-api-key");if(k){setApiKey(k.value);setAIKey(k.value)}}catch(e){}
-    try{const n=await window.storage.get("vintel-user-name");if(n)setUserName(n.value)}catch(e){}
-    try{const l=await window.storage.get("vintel-lang");if(l){setLang2(l.value);setLang(l.value)}}catch(e){}
+    try{const k=localStorage.getItem("vintel-api-key");if(k){setApiKey(k);setAIKey(k)}}catch(e){}
+    try{const n=localStorage.getItem("vintel-user-name");if(n)setUserName(n)}catch(e){}
+    try{const l=localStorage.getItem("vintel-lang");if(l){setLang2(l);setLang(l)}}catch(e){}
     setOk(true);
-  })()},[]);
+  },[]);
   useEffect(()=>{if(ok)save(wines)},[wines,ok]);
   useEffect(()=>{if(toast){const t=setTimeout(()=>setToast(null),2500);return()=>clearTimeout(t)}},[toast]);
 
@@ -1101,7 +1100,7 @@ function App(){
       `}</style>
 
       {/* Header */}
-      <header style={{padding:"20px 24px",borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
+      <header style={{padding:"20px 24px",paddingTop:"max(20px, env(safe-area-inset-top, 20px))",borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
         <div style={{maxWidth:600,margin:"0 auto",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div>
             <h1 style={{fontSize:22,fontWeight:800,margin:0,letterSpacing:"-0.03em",fontFamily:"'Outfit',sans-serif"}}>
