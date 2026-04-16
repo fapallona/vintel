@@ -1,5 +1,17 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Vintel"><meta name="theme-color" content="#16181d"><title>Vintel.</title><link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiVmludGVsIiwic2hvcnRfbmFtZSI6IlZpbnRlbCIsInN0YXJ0X3VybCI6Ii4iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMTYxODFkIiwidGhlbWVfY29sb3IiOiIjMTYxODFkIn0="><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"><style>*,*::before,*::after{box-sizing:border-box}html,body{margin:0;padding:0;min-height:100vh;background:#16181d;overflow-x:hidden}body{-webkit-font-smoothing:antialiased;font-family:'Outfit',sans-serif}#root{min-height:100vh}</style></head><body>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Vintel"><meta name="theme-color" content="#16181d"><title>Vintel.</title>
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiVmludGVsIiwic2hvcnRfbmFtZSI6IlZpbnRlbCIsInN0YXJ0X3VybCI6Ii4iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMTYxODFkIiwidGhlbWVfY29sb3IiOiIjMTYxODFkIn0=">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+html,body{margin:0;padding:0;min-height:100vh;background:#16181d;overflow-x:hidden}
+body{-webkit-font-smoothing:antialiased;font-family:'Outfit',sans-serif;padding-top:env(safe-area-inset-top)}
+#root{min-height:100vh}
+</style></head><body>
 <div id="root"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:16px"><h1 style="color:#fff;font-size:32px;font-weight:800;margin:0;letter-spacing:-0.03em;font-family:Outfit,sans-serif">Vintel<span style="color:rgba(255,255,255,0.25)">.</span></h1><p style="color:rgba(255,255,255,0.3);font-size:13px;margin:0">Loading...</p></div></div>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -225,6 +237,7 @@ const I18N={
   markFinished:{en:"Mark as finished",de:"Ausgetrunken"},
   deleteForever:{en:"Delete",de:"Löschen"},
   lastBottle:{en:"Last bottle!",de:"Letzte Flasche!"},
+  back:{en:"Back",de:"Zurück"},
   // API errors
   apiError:{en:"API error: ",de:"API-Fehler: "},
   connectionError:{en:"Connection error: ",de:"Verbindungsfehler: "},
@@ -912,8 +925,29 @@ const Stats = ({wines:allItems})=>{
 
 // ─── Drink Log Modal ──────────────────────────────────────────────
 const DrinkLog = ({wine,isLast,onConfirm,onSkip,onDelete,onCancel})=>{
+  const alreadyRated=wine.rating>0;
   const [note,setNote]=useState("");
   const [fp,setFp]=useState(wine.rating||0);
+
+  // Already rated + last bottle: simple Finished / Delete / Back
+  if(alreadyRated&&isLast) return(
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.6)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:1000,backdropFilter:"blur(12px)"}} onClick={onCancel}>
+      <div onClick={e=>e.stopPropagation()} style={{background:"#1e2028",borderRadius:"20px 20px 0 0",width:"100%",maxWidth:520,animation:"sheetUp 0.4s cubic-bezier(.22,1,.36,1)",border:"1px solid rgba(255,255,255,0.10)",borderBottom:"none",padding:24}}>
+        <div style={{display:"flex",justifyContent:"center",marginBottom:12}}><div style={{width:32,height:3,borderRadius:2,background:"rgba(255,255,255,0.22)"}}/></div>
+        <h2 style={{fontSize:18,fontWeight:700,color:"#fff",margin:"0 0 4px",fontFamily:"'Outfit',sans-serif"}}>{t("lastBottle")}</h2>
+        <p style={{fontSize:13,color:"rgba(255,255,255,0.48)",margin:"0 0 20px",fontFamily:"'Outfit',sans-serif"}}>
+          {wine.vineyard} — {wine.name||wine.type} <span style={{opacity:0.5}}>({wine.rating} FP)</span>
+        </p>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          <button onClick={()=>onConfirm(wine.rating,"")} style={{width:"100%",padding:"13px",borderRadius:10,border:"none",background:"#fff",color:"#1e2028",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>{t("markFinished")}</button>
+          <button onClick={()=>onDelete()} style={{width:"100%",padding:"13px",borderRadius:10,border:"1px solid rgba(239,68,68,0.15)",background:"transparent",color:"#f87171",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>{t("deleteForever")}</button>
+          <button onClick={onCancel} style={{width:"100%",padding:"13px",borderRadius:10,border:"1px solid rgba(255,255,255,0.10)",background:"transparent",color:"rgba(255,255,255,0.42)",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>{t("back")}</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Not yet rated: full rating form
   return(
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.6)",display:"flex",alignItems:"flex-end",justifyContent:"center",zIndex:1000,backdropFilter:"blur(12px)"}} onClick={onCancel}>
       <div onClick={e=>e.stopPropagation()} style={{background:"#1e2028",borderRadius:"20px 20px 0 0",width:"100%",maxWidth:520,animation:"sheetUp 0.4s cubic-bezier(.22,1,.36,1)",border:"1px solid rgba(255,255,255,0.10)",borderBottom:"none",padding:24}}>
@@ -944,6 +978,7 @@ const DrinkLog = ({wine,isLast,onConfirm,onSkip,onDelete,onCancel})=>{
           {isLast&&<button onClick={()=>onDelete()} style={{width:"100%",padding:"13px",borderRadius:10,border:"1px solid rgba(239,68,68,0.15)",background:"transparent",color:"#f87171",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>
             {t("deleteForever")}
           </button>}
+          <button onClick={onCancel} style={{width:"100%",padding:"13px",borderRadius:10,border:"none",background:"transparent",color:"rgba(255,255,255,0.32)",fontSize:13,fontWeight:500,cursor:"pointer",fontFamily:"'Outfit',sans-serif"}}>{t("back")}</button>
         </div>
       </div>
     </div>
@@ -1100,7 +1135,7 @@ function App(){
       `}</style>
 
       {/* Header */}
-      <header style={{padding:"20px 24px",paddingTop:"max(20px, env(safe-area-inset-top, 20px))",borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
+      <header style={{padding:"20px 24px",paddingTop:"calc(env(safe-area-inset-top, 0px) + 20px)",borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
         <div style={{maxWidth:600,margin:"0 auto",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div>
             <h1 style={{fontSize:22,fontWeight:800,margin:0,letterSpacing:"-0.03em",fontFamily:"'Outfit',sans-serif"}}>
