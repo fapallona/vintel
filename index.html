@@ -7,9 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box}
-html{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
 html,body{margin:0;padding:0;min-height:100vh;background:#16181d;overflow-x:hidden}
-body{-webkit-font-smoothing:antialiased;font-family:'Outfit',sans-serif;padding-top:env(safe-area-inset-top)}
+body{-webkit-font-smoothing:antialiased;font-family:'Outfit',sans-serif}
 #root{min-height:100vh}
 </style></head><body>
 <div id="root"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:16px"><h1 style="color:#fff;font-size:32px;font-weight:800;margin:0;letter-spacing:-0.03em;font-family:Outfit,sans-serif">Vintel<span style="color:rgba(255,255,255,0.25)">.</span></h1><p style="color:rgba(255,255,255,0.3);font-size:13px;margin:0">Loading...</p></div></div>
@@ -31,10 +30,19 @@ const WINE_TYPES = ["Red", "White", "Rosé", "Sparkling", "Dessert"];
 const SPIRIT_TYPES = ["Whisky","Rum","Gin","Vodka","Brandy/Cognac","Tequila/Mezcal","Schnaps/Obstler","Grappa","Liqueur","Other"];
 const ALL_TYPES = [...WINE_TYPES,...SPIRIT_TYPES];
 const GRAPES = [
-  "Cabernet Sauvignon","Merlot","Pinot Noir","Syrah/Shiraz","Tempranillo","Sangiovese",
-  "Nebbiolo","Malbec","Grenache","Zinfandel","Chardonnay","Sauvignon Blanc","Riesling",
-  "Pinot Grigio","Gewürztraminer","Grüner Veltliner","Viognier","Chenin Blanc","Albariño",
-  "Muscat","Blend","Other"
+  // White
+  "Grüner Veltliner","Riesling","Chardonnay","Sauvignon Blanc","Pinot Grigio","Gewürztraminer",
+  "Gelber Muskateller","Wiener Gemischter Satz","Welschriesling","Weißburgunder","Muscat",
+  "Viognier","Chenin Blanc","Albariño","Müller-Thurgau","Silvaner","Scheurebe","Furmint",
+  "Grauburgunder","Roter Veltliner","Neuburger","Rotgipfler","Zierfandler","Verdejo",
+  "Garganega","Vermentino","Friulano","Trebbiano","Cortese","Fiano","Greco",
+  // Red
+  "Zweigelt","Blaufränkisch","St. Laurent","Pinot Noir","Cabernet Sauvignon","Merlot",
+  "Syrah/Shiraz","Cabernet Franc","Tempranillo","Sangiovese","Nebbiolo","Malbec",
+  "Grenache","Zinfandel","Primitivo","Barbera","Corvina","Nero d'Avola","Montepulciano",
+  "Lagrein","Mourvèdre","Pinotage","Gamay","Tannat","Carménère","Touriga Nacional",
+  // Other
+  "Blend","Other"
 ];
 const COUNTRIES_REGIONS = {
   "France": ["Bordeaux","Burgundy","Champagne","Rhône Valley","Loire Valley","Alsace","Languedoc","Provence","Jura","Beaujolais","Corsica","Savoie","Sud-Ouest","Roussillon"],
@@ -120,6 +128,11 @@ const I18N={
   tDessert:{en:"Dessert",de:"Dessertwein"},
   // Sort
   sort:{en:"Sort",de:"Sortieren"},
+  sortProducer:{en:"Producer",de:"Produzent"},
+  sortPriceUp:{en:"Price ↑",de:"Preis ↑"},
+  sortPriceDown:{en:"Price ↓",de:"Preis ↓"},
+  sortVintage:{en:"Vintage",de:"Jahrgang"},
+  allTypes:{en:"All",de:"Alle"},
   producer:{en:"Producer",de:"Produzent"},
   // Search
   searchCollection:{en:"Search collection...",de:"Sammlung durchsuchen..."},
@@ -1112,9 +1125,9 @@ function App(){
   const totalBottles=wines.reduce((s,w)=>s+w.qty,0);
 
   const tabs=[
-    {id:"cellar",label:"Collection",icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>},
-    {id:"sommelier",label:"Sommelier",icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>},
-    {id:"stats",label:"Insights",icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>},
+    {id:"cellar",label:t("collection"),icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>},
+    {id:"sommelier",label:t("sommelier"),icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>},
+    {id:"stats",label:t("insights"),icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>},
   ];
 
   return(
@@ -1135,7 +1148,7 @@ function App(){
       `}</style>
 
       {/* Header */}
-      <header style={{padding:"20px 24px",paddingTop:"calc(env(safe-area-inset-top, 0px) + 20px)",borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
+      <header style={{padding:"20px 24px",paddingTop:54,borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
         <div style={{maxWidth:600,margin:"0 auto",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div>
             <h1 style={{fontSize:22,fontWeight:800,margin:0,letterSpacing:"-0.03em",fontFamily:"'Outfit',sans-serif"}}>
@@ -1214,7 +1227,7 @@ function App(){
                   padding:"7px 14px",borderRadius:8,border:!filters.type?"1px solid rgba(255,255,255,0.22)":"1px solid rgba(255,255,255,0.10)",
                   background:!filters.type?"rgba(255,255,255,0.10)":"transparent",color:!filters.type?"#fff":"rgba(255,255,255,0.42)",
                   fontSize:12,fontWeight:!filters.type?600:500,cursor:"pointer",fontFamily:"'Outfit',sans-serif",whiteSpace:"nowrap",transition:"all 0.2s"
-                }}>All</button>
+                }}>{t("allTypes")}</button>
                 {visible.map(({t:tp,n})=>{const c=TC[tp]||TC.Other;return(
                   <button key={tp} onClick={()=>setFilter("type",tp)} style={{
                     padding:"7px 14px",borderRadius:8,
@@ -1250,7 +1263,7 @@ function App(){
           {/* Sort */}
           <div style={{display:"flex",gap:4,marginBottom:12,alignItems:"center",overflowX:"auto"}}>
             <span style={{fontSize:11,color:"rgba(255,255,255,0.32)",marginRight:4,fontWeight:600,textTransform:"uppercase",letterSpacing:"0.08em",flexShrink:0,fontFamily:"'Outfit',sans-serif"}}>{t("sort")}</span>
-            {[["producer","Producer"],["price-asc","Price ↑"],["price-desc","Price ↓"],["vintage","Vintage"],["fp","FP ↓"]].map(([k,l])=>(
+            {[["producer",t("sortProducer")],["price-asc",t("sortPriceUp")],["price-desc",t("sortPriceDown")],["vintage",t("sortVintage")],["fp","FP ↓"]].map(([k,l])=>(
               <button key={k} onClick={()=>setSortBy(k)} style={{
                 padding:"5px 12px",borderRadius:7,border:"none",whiteSpace:"nowrap",
                 background:sortBy===k?"rgba(255,255,255,0.10)":"transparent",
